@@ -1,13 +1,10 @@
 const displayElement = document.querySelector(".display");
-
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".button");
-  buttons.forEach((button) => button.addEventListener("click", behaviour));
-});
-
-let actualNumber = "";
-let savedNumber = "";
+let number_1 = "";
+let number_2 = "";
+let result = "";
 let operator = "";
+let locked = false;
+numberCreation = false;
 const operators = ["+", "-", "*", "/", "%", "="];
 const op = {
   "+": (a, b) => a + b,
@@ -15,38 +12,56 @@ const op = {
   "×": (a, b) => a * b,
   "÷": (a, b) => a / b,
 };
+const maxLength = 14;
 
-function behaviour() {
-  const maxLength = 14;
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".button");
+  buttons.forEach((button) => button.addEventListener("click", input));
+});
+
+function input() {
   const displayLength = displayElement.value.length;
-  let element = this.innerHTML;
+  let inputElement = this.innerHTML;
 
   if (this.classList.contains("digit")) {
+    locked = false;
     if (displayLength < maxLength) {
-      actualNumber += element;
-      displayElement.value = actualNumber;
-      console.log("actualNumber: " + actualNumber);
-      console.log("savedNumber: " + savedNumber);
+      createNumber(inputElement);
     }
   }
 
   if (this.classList.contains("operator")) {
-    const lastDisplayedContent = displayElement.value;
-    if (!operators.includes(lastDisplayedContent)) {
-      if (element === "=") {
-        console.log(operator);
-        result = op[operator](
-          Number.parseInt(savedNumber),
-          Number.parseInt(actualNumber)
-        );
-        displayElement.value = result;
-        console.log(result);
-      } else {
-        savedNumber = actualNumber;
-        actualNumber = "";
-        operator = element;
+    //prevent display operator as first input
+    if (displayElement.value === "") {
+      return;
+    }
 
-        displayElement.value = element;
+    numberCreation = false;
+
+    if (inputElement === "=") {
+      result = op[operator](
+        Number.parseInt(number_2),
+        Number.parseInt(number_1)
+      );
+      displayElement.value = result;
+      locked = true;
+      reset();
+
+      //input operators: + , - , * , /
+    } else {
+      operator = inputElement;
+      displayElement.value = inputElement;
+      if (number_2 === "") {
+        number_2 = number_1;
+        number_1 = "";
+      } else {
+        result = op[operator](
+          Number.parseInt(number_2),
+          Number.parseInt(number_1)
+        );
+        console.log("result: " + result);
+        number_2 = result;
+        number_1 = "";
       }
     }
   }
@@ -60,6 +75,15 @@ function behaviour() {
   }
 }
 
+function createNumber(digit) {
+  if (numberCreation === false) {
+    number_1 = "";
+  }
+  number_1 += digit;
+  displayElement.value = number_1;
+  numberCreation = true;
+}
+
 function clear() {
   displayElement.value = "";
   console.clear();
@@ -67,12 +91,15 @@ function clear() {
 }
 
 function stepBack() {
-  actualNumber = displayElement.value.slice(0, -1);
-  displayElement.value = actualNumber;
+  if (locked === false) {
+    value = displayElement.value.slice(0, -1);
+    displayElement.value = value;
+    number_1 = value;
+  }
 }
 
 function reset() {
-  actualNumber = "";
-  savedNumber = "";
+  number_1 = result;
+  number_2 = "";
   operator = "";
 }
