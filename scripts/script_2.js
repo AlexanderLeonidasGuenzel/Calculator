@@ -1,5 +1,11 @@
 const display = document.querySelector(".display");
 const btn = document.querySelectorAll(".button");
+const light = document.querySelector(".light");
+const isOperator = /[+\-*/]/;
+const isNumber = /\d/;
+const clr = /CLR/;
+const deleteSymbol = /DEL/;
+const decimalPoint = /./;
 
 let result = "";
 let numberString = "";
@@ -9,98 +15,88 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const input = (event) => {
-  let element = event.target.innerHTML;
+  let element = event.target.dataset.item;
 
-  switch (element) {
-    case "C":
-      display.value = "";
-      numberString = "";
-      console.clear();
-      break;
-    case "⬅":
+  console.log("element: " + element);
+
+  if (element === "ON") {
+    if (display.classList.contains("on")) {
+      display.classList.toggle("on");
+      clear();
+    } else {
+      display.classList.toggle("on");
+    }
+  }
+
+  if (display.classList.contains("on")) {
+    console.log(element);
+    if (clr.test(element)) {
+      clear();
+    }
+    if (deleteSymbol.test(element)) {
       display.value = display.value.slice(0, -1);
-      break;
-    case ".":
-      if (display.value.slice(-1) === ".") {
-        break;
-      } else if (display.value.includes(".")) {
-        break;
-      } else {
-        console.log("element: " + element);
-        display.value += element;
-        break;
-      }
+    }
 
-    case "=":
-      console.log(numberString);
-      result = eval(numberString);
-      display.value = result;
-      break;
+    switch (element) {
+      case ".":
+        pointThing();
+        break;
 
-    default:
-      const isOperator = /[+\-*/]/;
-      const isNumber = /\d/;
-      let prevElement = display.value.slice(-1);
-      if (isNumber.test(element)) {
-        if (isOperator.test(prevElement)) {
-          display.value = element;
-        } else {
-          display.value += element;
+      case "=":
+        calc();
+        break;
+
+      default:
+        let prevElement = getPrevElement();
+
+        if (isNumber.test(element)) {
+          if (isOperator.test(prevElement)) {
+            display.value = element;
+          } else {
+            display.value += element;
+          }
+          numberString += element;
+        } else if (isOperator.test(element)) {
+          showOperator(element);
+          append(element);
         }
-        numberString += element;
-      } else if (isOperator.test(element)) {
-        display.value = element;
-        numberString += element;
-      }
+    }
+  } else {
+    console.log("Calculator is off!");
   }
 };
 
-// const input = (event) => {
-//   let element = event.target.innerHTML;
+function append(element) {
+  numberString += element;
+}
+function showNumber(element) {
+  display.value += element;
+}
+function showOperator(element) {
+  display.value = element;
+}
+function getPrevElement() {
+  return display.value.slice(-1);
+}
 
-//   switch (element) {
-//     case "C":
-//       display.value = "";
-//       result = "";
-//       break;
-//     case "⬅":
-//       display.value = display.value.slice(0, -1);
-//       break;
-//     case ".":
-//       if (display.value.slice(-1) === ".") {
-//         break;
-//       } else if (display.value.includes(".")) {
-//         break;
-//       } else {
-//         console.log("element: " + element);
-//         display.value += element;
-//         break;
-//       }
+function pointThing() {
+  if (decimalPoint.test(display.value.slice(0, -1))) {
+  } else {
+    showNumber(".");
+  }
+}
 
-//     case "=":
-//       result = eval(display.value);
-//       display.value += element + result;
-//       break;
+function clear() {
+  display.value = "";
+  numberString = "";
+  console.clear();
+}
 
-//     default:
-//       if (result === "") {
-//         display.value += element;
-//       } else {
-//         if (
-//           element === "+" ||
-//           element === "-" ||
-//           element === "*" ||
-//           element === "/" ||
-//           element === "%"
-//         ) {
-//           display.value = "";
-//           display.value += result + element;
-//           result = "";
-//         } else {
-//           display.value = "";
-//           display.value += element;
-//           result = "";
-//         }
-//       }
-//   }
-// };
+function calc() {
+  try {
+    result = eval(numberString);
+    display.value = result;
+  } catch (error) {
+    display.value = "ERROR";
+  }
+}
