@@ -15,16 +15,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const input = (event) => {
-  let element = event.target.dataset.item;
+  let item = event.target.dataset.item;
 
-  console.log("element: " + element);
-
-  if (element === "ON") {
+  //switch on / off
+  if (item === "ON") {
     if (display.classList.contains("on")) {
       display.classList.toggle("on");
       clear();
     } else {
       display.classList.toggle("on");
+      display.classList.add("animation");
+      display.value = "       HELLO";
+      setTimeout(() => {
+        display.value = "";
+        display.classList.remove("animation");
+      }, 3000);
     }
   }
 
