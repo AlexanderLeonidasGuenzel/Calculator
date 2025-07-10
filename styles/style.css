@@ -20,16 +20,16 @@
 }
 
 body {
-  min-height: 100dvh;
   font-size: 1rem;
-  background-color: rgb(21, 13, 31);
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
   gap: 10px;
   position: relative;
-  padding: 20px;
+  min-height: 100dvh;
+  /* padding: 20px; */
+  background-color: rgb(21, 13, 31);
 }
 
 .main {
@@ -50,27 +50,27 @@ body {
 }
 
 .display {
-  width: calc(100% - 20px);
   font-family: "SevenSegment", sans-serif;
   font-size: 2.5em;
-  font-size: calc(2em, 5vw, 48px);
-  font-weight: 100;
+  font-weight: 200;
+  letter-spacing: 3px;
   text-align: end;
-  text-transform: uppercase;
-  border-radius: 5px;
-  pointer-events: none;
+  vertical-align: middle;
+  width: calc(100% - 20px);
+  height: 70px;
   margin: 0 10px;
   padding: 15px 0;
   padding-left: 80%;
+  border-radius: 5px;
   outline-offset: 1px;
-  letter-spacing: 3px;
   overflow: hidden;
+  pointer-events: none;
 
   /* off */
   background-color: rgba(9, 31, 10, 0.623);
   border: 3px solid rgba(16, 54, 19, 0.493);
   outline: 3px solid rgb(14, 14, 14);
-  color: rgba(0, 0, 0, 0);
+  color: rgba(185, 28, 28, 0);
 }
 
 .display.on {
@@ -85,7 +85,7 @@ body {
 }
 
 .display.on.animation {
-  transition: padding-left 3s ease-out;
+  transition: padding-left 2s ease-out;
 }
 
 .planet {
@@ -138,7 +138,7 @@ body {
   border: none;
 }
 
-.button.on-off {
+.button.power {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -234,6 +234,10 @@ body {
 
 @media screen and (min-height: 700px) {
   body {
-    gap: clamp(5px, 8vh, 70px);
+    gap: clamp(5px, 5vh, 70px);
+  }
+
+  .display {
+    height: 100px;
   }
 }

@@ -1,105 +1,117 @@
-const displayElement = document.querySelector(".display");
-let number_1 = "";
-let number_2 = "";
-let result = "";
-let operator = "";
-let locked = false;
-numberCreation = false;
-const operators = ["+", "-", "*", "/", "%", "="];
-const op = {
-  "+": (a, b) => a + b,
-  "-": (a, b) => a - b,
-  "×": (a, b) => a * b,
-  "÷": (a, b) => a / b,
-};
-const maxLength = 14;
+const display = document.querySelector(".display");
+const btn = document.querySelectorAll(".button");
+const btnOn = document.querySelector(".power");
+const light = document.querySelector(".light");
+const operator = /[+\-*\/]/;
+const digit = /\d/;
+
+let number = "";
+let displayItem = "";
+let evalString = "";
+let hasResult = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".button");
-  buttons.forEach((button) => button.addEventListener("click", input));
+  btnOn.addEventListener("click", powerOn);
 });
 
-function input() {
-  const displayLength = displayElement.value.length;
-  let inputElement = this.innerHTML;
+const powerOn = () => {
+  if (display.classList.contains("on")) {
+    display.classList.toggle("on");
+    btn.forEach((b) => b.removeEventListener("click", inputHandler));
+    reset();
+  } else {
+    display.classList.toggle("on");
+    display.classList.add("animation");
+    display.value = "       Hello";
+    setTimeout(() => {
+      display.value = "";
+      display.classList.remove("animation");
+      btn.forEach((b) => b.addEventListener("click", inputHandler));
+    }, 2500);
+  }
+};
 
-  if (this.classList.contains("digit")) {
-    locked = false;
-    if (displayLength < maxLength) {
-      createNumber(inputElement);
-    }
+const inputHandler = (event) => {
+  let inputValue = event.target.dataset.item;
+  display.style.fontFamily = "SevenSegment";
+
+  if (inputValue === "CLR") {
+    reset();
   }
 
-  if (this.classList.contains("operator")) {
-    //prevent display operator as first input
-    if (displayElement.value === "") {
-      return;
-    }
-
-    numberCreation = false;
-
-    if (inputElement === "=") {
-      result = op[operator](
-        Number.parseInt(number_2),
-        Number.parseInt(number_1)
-      );
-      displayElement.value = result;
-      locked = true;
-      reset();
-
-      //input operators: + , - , * , /
+  //digit 0-9 and .
+  if ((digit.test(inputValue) || inputValue === ".") && number.length <= 10) {
+    if (number.includes(".") && inputValue === ".") {
+      //do nothing
     } else {
-      operator = inputElement;
-      displayElement.value = inputElement;
-      if (number_2 === "") {
-        number_2 = number_1;
-        number_1 = "";
-      } else {
-        result = op[operator](
-          Number.parseInt(number_2),
-          Number.parseInt(number_1)
-        );
-        console.log("result: " + result);
-        number_2 = result;
-        number_1 = "";
-      }
+      hasResult = false;
+      number += inputValue;
+      displayItem = number;
     }
   }
 
-  if (this.classList.contains("clear")) {
-    clear();
+  //operator +,-,*,/
+  if (operator.test(inputValue)) {
+    let op = inputValue;
+    if ((hasResult || display.value === "") && (op === "*" || op === "/")) {
+    } else {
+      append(number);
+      append(op);
+      displayItem = displayOperator(op);
+    }
   }
 
-  if (this.classList.contains("stepBack")) {
-    stepBack();
+  // =
+  if (inputValue === "=") {
+    const SCALE = 10000000000;
+    try {
+      append(number);
+      let result = eval(evalString);
+      displayItem = Math.round(result * SCALE) / SCALE;
+      hasResult = true;
+      number = "";
+      evalString = "";
+    } catch (error) {
+      displayItem = "ERROR";
+    }
   }
-}
 
-function createNumber(digit) {
-  if (numberCreation === false) {
-    number_1 = "";
+  if (inputValue === "DEL") {
+    if (digit.test(display.value)) {
+      number = removeFrom(number);
+      displayItem = number;
+    }
   }
-  number_1 += digit;
-  displayElement.value = number_1;
-  numberCreation = true;
+  display.value = displayItem;
+};
+
+function append(item) {
+  evalString += item;
+  number = "";
 }
 
-function clear() {
-  displayElement.value = "";
-  console.clear();
-  reset();
-}
-
-function stepBack() {
-  if (locked === false) {
-    value = displayElement.value.slice(0, -1);
-    displayElement.value = value;
-    number_1 = value;
+function removeFrom(target) {
+  if (target.lenght !== 0) {
+    return target.slice(0, -1);
   }
 }
 
 function reset() {
-  number_1 = result;
-  number_2 = "";
-  operator = "";
+  evalString = "";
+  number = "";
+  displayItem = "";
+  hasResult = false;
+}
+
+function displayOperator(op) {
+  if (op === "/") {
+    display.style.fontFamily = "Arial, sans-serif";
+    return "÷";
+  }
+  if (op === "*") {
+    display.style.fontFamily = "Arial, sans-serif";
+    return "x";
+  } else {
+    return op;
+  }
 }
