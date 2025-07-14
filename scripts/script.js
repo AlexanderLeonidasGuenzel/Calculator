@@ -1,6 +1,6 @@
 const display = document.querySelector(".display");
 const btn = document.querySelectorAll(".button");
-const btnOn = document.querySelector(".power");
+const powerBtn = document.querySelector(".power");
 const light = document.querySelector(".light");
 const operator = /[+\-*\/]/;
 const digit = /\d/;
@@ -11,9 +11,10 @@ let evalString = "";
 let hasResult = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  btnOn.addEventListener("click", powerOn);
+  powerBtn.addEventListener("click", powerOn);
 });
 
+//Event-Handler
 const powerOn = () => {
   if (display.classList.contains("on")) {
     display.classList.toggle("on");
@@ -34,12 +35,20 @@ const powerOn = () => {
 const inputHandler = (event) => {
   let inputValue = event.target.dataset.item;
   display.style.fontFamily = "SevenSegment";
+  display.style.fontWeight = "400";
 
   if (inputValue === "CLR") {
     reset();
   }
 
-  //digit 0-9 and .
+  if (inputValue === "DEL") {
+    if (digit.test(display.value)) {
+      number = removeFrom(number);
+      displayItem = number;
+    }
+  }
+
+  //digit 0-9 and point .
   if ((digit.test(inputValue) || inputValue === ".") && number.length <= 10) {
     if (number.includes(".") && inputValue === ".") {
       //do nothing
@@ -54,6 +63,7 @@ const inputHandler = (event) => {
   if (operator.test(inputValue)) {
     let op = inputValue;
     if ((hasResult || display.value === "") && (op === "*" || op === "/")) {
+      //do nothing
     } else {
       append(number);
       append(op);
@@ -61,7 +71,7 @@ const inputHandler = (event) => {
     }
   }
 
-  // =
+  // calculate
   if (inputValue === "=") {
     const SCALE = 10000000000;
     try {
@@ -76,15 +86,10 @@ const inputHandler = (event) => {
     }
   }
 
-  if (inputValue === "DEL") {
-    if (digit.test(display.value)) {
-      number = removeFrom(number);
-      displayItem = number;
-    }
-  }
   display.value = displayItem;
 };
 
+//Help Functions
 function append(item) {
   evalString += item;
   number = "";
@@ -96,22 +101,23 @@ function removeFrom(target) {
   }
 }
 
+function displayOperator(op) {
+  display.style.fontFamily = "NotoSansMath, sans-serif";
+  display.style.fontWeight = "100";
+  display.style.fontSize = "2.7em";
+
+  if (op === "/") {
+    return "÷";
+  } else if (op === "*") {
+    return "x";
+  } else {
+    return op;
+  }
+}
+
 function reset() {
   evalString = "";
   number = "";
   displayItem = "";
   hasResult = false;
-}
-
-function displayOperator(op) {
-  if (op === "/") {
-    display.style.fontFamily = "Arial, sans-serif";
-    return "÷";
-  }
-  if (op === "*") {
-    display.style.fontFamily = "Arial, sans-serif";
-    return "x";
-  } else {
-    return op;
-  }
 }
